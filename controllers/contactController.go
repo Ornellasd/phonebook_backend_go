@@ -149,8 +149,6 @@ func UpdateContact(c *fiber.Ctx) error {
 		},
 	}
 
-	log.Println(update)
-
 	_, err = contactCollection.UpdateOne(ctx, bson.M{"_id": objId}, update)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -161,6 +159,7 @@ func UpdateContact(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"data":    contact,
 		"success": true,
 		"message": "Contact updated successfully",
 	})
