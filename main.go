@@ -25,6 +25,7 @@ func setupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 
 	routes.CatchphrasesRoute(api.Group("/catchphrases"))
+	routes.ConcactsRoute(api.Group("/contacts"))
 }
 
 func main() {

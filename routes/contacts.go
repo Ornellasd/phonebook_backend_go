@@ -6,6 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ConcactsController(route fiber.Router) {
+func ConcactsRoute(route fiber.Router) {
 	route.Get("/", controllers.GetAllContacts)
 }
