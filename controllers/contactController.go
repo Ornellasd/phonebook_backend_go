@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"phonebook_rest_api/config"
 	"phonebook_rest_api/models"
@@ -61,12 +62,34 @@ func GetContact(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(
 		contact,
 	)
+}
 
-	// if err = contactCollection.FindOne(ctx, bson.M{}).Decode(&contact); err != nil {
-	// 	log.Fatal(err)
-	// }
+func AddContact(c *fiber.Ctx) error {
+	contactCollection := config.MI.DB.Collection("entries")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	contact := new(models.Entry)
 
-	// return c.Status(fiber.StatusOK).JSON(
-	// 	contact,
-	//)
+	if err := c.BodyParser(contact); err != nil {
+		log.Println(err)
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": "Failed to parse body",
+			"error":   err,
+		})
+	}
+
+	result, err := contactCollection.InsertOne(ctx, contact)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success":  false,
+			"messsage": "Catchphrase failed to insert",
+			"error":    err,
+		})
+	}
+
+	fmt.Println(result)
+
+	return c.Status(fiber.StatusCreated).JSON(
+		result,
+	)
 }
