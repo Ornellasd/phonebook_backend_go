@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"phonebook_rest_api/config"
 	"phonebook_rest_api/models"
@@ -45,7 +44,7 @@ func GetContact(c *fiber.Ctx) error {
 	if err := findResult.Err(); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
-			"message": "Catchphrase Not found",
+			"message": "Contact Not found",
 			"error":   err,
 		})
 	}
@@ -54,7 +53,7 @@ func GetContact(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
-			"message": "Catchphrase Not found",
+			"message": "Contact Not found",
 			"error":   err,
 		})
 	}
@@ -79,17 +78,44 @@ func AddContact(c *fiber.Ctx) error {
 	}
 
 	result, err := contactCollection.InsertOne(ctx, contact)
+
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success":  false,
-			"messsage": "Catchphrase failed to insert",
+			"messsage": "Contact failed to insert",
 			"error":    err,
 		})
 	}
 
-	fmt.Println(result)
-
 	return c.Status(fiber.StatusCreated).JSON(
 		result,
 	)
+}
+
+func DeleteContact(c *fiber.Ctx) error {
+	contactCollection := config.MI.DB.Collection("entries")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "Contact not found",
+			"error":   err,
+		})
+	}
+
+	_, err = contactCollection.DeleteOne(ctx, bson.M{"_id": objId})
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "Contact failed to delete",
+			"error":   err,
+		})
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"message": "Catchphrase deleted successfully",
+	})
+
 }
