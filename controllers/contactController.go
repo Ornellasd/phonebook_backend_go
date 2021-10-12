@@ -87,9 +87,11 @@ func AddContact(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(
-		result,
-	)
+	contactID := (result.InsertedID).(primitive.ObjectID).Hex()
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"_id": contactID,
+	})
 }
 
 func DeleteContact(c *fiber.Ctx) error {
