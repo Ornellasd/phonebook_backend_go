@@ -11,4 +11,5 @@ func ContactsRoute(route fiber.Router) {
 	route.Get("/:id", controllers.GetContact)
 	route.Post("/", controllers.AddContact)
 	route.Delete("/:id", controllers.DeleteContact)
+	route.Put("/:id", controllers.UpdateContact)
 }

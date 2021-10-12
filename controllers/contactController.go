@@ -115,7 +115,53 @@ func DeleteContact(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"success": true,
-		"message": "Catchphrase deleted successfully",
+		"message": "Contact deleted successfully",
 	})
 
+}
+
+func UpdateContact(c *fiber.Ctx) error {
+	contactCollection := config.MI.DB.Collection("entries")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	contact := new(models.Entry)
+
+	if err := c.BodyParser(contact); err != nil {
+		log.Println(err)
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": "Failed to parse body",
+			"error":   err,
+		})
+	}
+
+	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "Contact not found",
+			"error":   err,
+		})
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"phone": contact.PhoneNumber,
+		},
+	}
+
+	log.Println(update)
+
+	_, err = contactCollection.UpdateOne(ctx, bson.M{"_id": objId}, update)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "Contact failed to update",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"message": "Contact updated successfully",
+	})
 }
